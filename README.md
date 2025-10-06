@@ -1,6 +1,6 @@
 # AI Video Engineer Frontend
 
-Built/deployed 100% on GitHub. Live demo: https://yourusername.github.io/ai-video-engineer-frontend
+Built/deployed 100% on GitHub. Live demo: https://princeflexzy0/ai-video-engineer-frontend
 
 ## Run Locally (in Codespaces)
 1. Open repo in Codespaces.
