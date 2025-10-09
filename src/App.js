@@ -1,18 +1,33 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// Providers added later
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { SocketProvider } from './contexts/SocketContext';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import Dashboard from './components/Dashboard/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
+import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App" style={{ padding: '20px' }}>
-        <h1>AI Video Engineer – Building on GitHub</h1>
-        <Routes>
-          <Route path="/" element={<h2>Login Page (Coming)</h2>} />
-          <Route path="/dashboard" element={<h2>Protected Dashboard (Coming)</h2>} />
-        </Routes>
-      </div>
-    </Router>
+    <SocketProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </div>
+      </Router>
+    </SocketProvider>
   );
 }
 
