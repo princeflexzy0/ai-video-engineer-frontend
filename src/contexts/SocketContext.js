@@ -9,31 +9,37 @@ export const useSocket = () => {
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const [connected, setConnected] = useState(false);
   const [videoStatus, setVideoStatus] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Connect to backend
     const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://ai-video-backend.onrender.com';
+    
     const newSocket = io(BACKEND_URL, {
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'],
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: 5
+      reconnectionAttempts: 5,
+      timeout: 10000
     });
 
     newSocket.on('connect', () => {
-      console.log('✅ Connected to backend Socket.io');
-      setConnected(true);
+      console.log('✅ Connected to backend');
+      setIsConnected(true);
     });
 
     newSocket.on('disconnect', () => {
       console.log('❌ Disconnected from backend');
-      setConnected(false);
+      setIsConnected(false);
     });
 
-    newSocket.on('video_status', (data) => {
-      console.log('📡 Video status update:', data);
+    newSocket.on('connect_error', (error) => {
+      console.log('⚠️ Connection error:', error.message);
+      setIsConnected(false);
+    });
+
+    newSocket.on('video_progress', (data) => {
+      console.log('📹 Video progress:', data);
       setVideoStatus(data);
     });
 
@@ -45,7 +51,7 @@ export const SocketProvider = ({ children }) => {
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket, connected, videoStatus }}>
+    <SocketContext.Provider value={{ socket, videoStatus, isConnected }}>
       {children}
     </SocketContext.Provider>
   );
