@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketContext';
 
-const AutoUploadForm = () => {
+const BACKEND_URL = 'https://ai-video-backend.onrender.com'; // ← Your actual Render URL
   const [script, setScript] = useState('');
   const [template, setTemplate] = useState('presenter1');
   const [loading, setLoading] = useState(false);

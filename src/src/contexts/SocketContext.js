@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 
-const SocketContext = createContext();
+const BACKEND_URL = 'https://ai-video-backend.onrender.com'; // ← Your actual Render URL
 
 export const useSocket = () => useContext(SocketContext);
 
