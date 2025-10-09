@@ -1,6 +1,5 @@
 {
   "name": "ai-video-engineer-frontend",
-  "homepage": "https://princeflexzy0.github.io/ai-video-engineer-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
