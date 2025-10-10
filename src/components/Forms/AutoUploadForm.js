@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSocket } from '../../contexts/SocketContext';
 
 function AutoUploadForm() {
   const [script, setScript] = useState('');
@@ -7,31 +6,35 @@ function AutoUploadForm() {
   const [status, setStatus] = useState('');
   const [videoId, setVideoId] = useState(null);
   const [progress, setProgress] = useState(null);
-  const { videoStatus, isConnected } = useSocket();
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://ai-video-engineer-backend.onrender.com';
+  const BACKEND_URL = 'https://ai-video-engineer-backend.onrender.com';
 
   useEffect(() => {
     if (!videoId) return;
 
+    console.log('Starting to poll for video:', videoId);
+
     const pollStatus = setInterval(async () => {
       try {
+        console.log('Polling video status...');
         const response = await fetch(`${BACKEND_URL}/video-status/${videoId}`);
         if (response.ok) {
           const data = await response.json();
-          console.log('Polling update:', data);
+          console.log('Status update:', data);
           setProgress(data);
+          
           if (data.status === 'completed' || data.status === 'failed') {
+            console.log('Video processing complete!');
             clearInterval(pollStatus);
           }
         }
       } catch (error) {
-        console.log('Polling error:', error);
+        console.error('Polling error:', error);
       }
-    }, 3000);
+    }, 2000); // Poll every 2 seconds
 
     return () => clearInterval(pollStatus);
-  }, [videoId, BACKEND_URL]);
+  }, [videoId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,31 +65,45 @@ function AutoUploadForm() {
     }
   };
 
-  const currentProgress = videoStatus?.id === videoId ? videoStatus : progress;
-
   return (
-    <div style={{ maxWidth: '600px', margin: '20px auto', padding: '20px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-      <h3 style={{ marginBottom: '20px' }}>Generate AI Video</h3>
+    <div style={{ maxWidth: '700px', margin: '20px auto', padding: '30px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+      <h3 style={{ marginBottom: '25px', fontSize: '24px', color: '#333' }}>Generate AI Video</h3>
       
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Video Script:</label>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '15px', color: '#555' }}>Video Script:</label>
           <textarea
             value={script}
             onChange={(e) => setScript(e.target.value)}
             placeholder="Enter your video script here..."
             required
-            rows="6"
-            style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '4px', border: '1px solid #ddd' }}
+            rows="7"
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              fontSize: '15px', 
+              borderRadius: '6px', 
+              border: '2px solid #ddd',
+              fontFamily: 'inherit',
+              resize: 'vertical'
+            }}
           />
         </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Template:</label>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '15px', color: '#555' }}>Template:</label>
           <select
             value={template}
             onChange={(e) => setTemplate(e.target.value)}
-            style={{ width: '100%', padding: '10px', fontSize: '14px', borderRadius: '4px', border: '1px solid #ddd' }}
+            style={{ 
+              width: '100%', 
+              padding: '12px', 
+              fontSize: '15px', 
+              borderRadius: '6px', 
+              border: '2px solid #ddd',
+              backgroundColor: 'white',
+              cursor: 'pointer'
+            }}
           >
             <option value="presenter1">Presenter 1</option>
             <option value="presenter2">Presenter 2</option>
@@ -98,85 +115,152 @@ function AutoUploadForm() {
           type="submit"
           style={{
             width: '100%',
-            padding: '12px',
+            padding: '15px',
             backgroundColor: '#667eea',
             color: 'white',
             border: 'none',
-            borderRadius: '4px',
-            fontSize: '16px',
+            borderRadius: '8px',
+            fontSize: '17px',
             fontWeight: 'bold',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            transition: 'background-color 0.2s'
           }}
+          onMouseOver={(e) => e.target.style.backgroundColor = '#5568d3'}
+          onMouseOut={(e) => e.target.style.backgroundColor = '#667eea'}
         >
           Generate Video
         </button>
       </form>
 
       {status && (
-        <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
-          <p style={{ margin: 0 }}>{status}</p>
+        <div style={{ marginTop: '25px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', borderLeft: '4px solid #667eea' }}>
+          <p style={{ margin: 0, fontSize: '15px' }}>{status}</p>
+          <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#666' }}>
+            ⏱️ Status updates every 2 seconds
+          </p>
         </div>
       )}
 
-      {currentProgress && (
-        <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#e8f5e9', borderRadius: '4px' }}>
-          <h4 style={{ marginTop: 0 }}>Progress:</h4>
-          <p><strong>Status:</strong> {currentProgress.status}</p>
-          {currentProgress.current_step && (
-            <p><strong>Step:</strong> {currentProgress.current_step}</p>
-          )}
-          {currentProgress.progress !== undefined && (
-            <div style={{ marginTop: '10px' }}>
-              <div style={{ width: '100%', backgroundColor: '#ddd', borderRadius: '10px', height: '20px' }}>
+      {progress && (
+        <div style={{ marginTop: '25px', padding: '20px', backgroundColor: '#f0f8ff', borderRadius: '8px', border: '2px solid #e3f2fd' }}>
+          <h4 style={{ marginTop: 0, marginBottom: '15px', fontSize: '18px', color: '#333' }}>📹 Video Progress</h4>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <p style={{ margin: '0 0 5px 0', fontSize: '15px' }}>
+              <strong>Status:</strong> <span style={{ color: progress.status === 'completed' ? '#28a745' : '#667eea' }}>{progress.status}</span>
+            </p>
+            {progress.current_step && (
+              <p style={{ margin: '5px 0', fontSize: '15px' }}>
+                <strong>Current Step:</strong> {progress.current_step}
+              </p>
+            )}
+          </div>
+
+          {progress.progress !== undefined && (
+            <div style={{ marginTop: '15px' }}>
+              <div style={{ 
+                width: '100%', 
+                backgroundColor: '#e0e0e0', 
+                borderRadius: '12px', 
+                height: '28px',
+                overflow: 'hidden',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+              }}>
                 <div style={{
-                  width: `${currentProgress.progress}%`,
-                  backgroundColor: '#4caf50',
+                  width: `${progress.progress}%`,
+                  backgroundColor: progress.status === 'completed' ? '#28a745' : '#667eea',
                   height: '100%',
-                  borderRadius: '10px',
-                  transition: 'width 0.3s ease'
-                }}></div>
+                  borderRadius: '12px',
+                  transition: 'width 0.5s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '14px'
+                }}>
+                  {progress.progress}%
+                </div>
               </div>
-              <p style={{ textAlign: 'center', marginTop: '5px', fontWeight: 'bold' }}>{currentProgress.progress}%</p>
             </div>
           )}
           
-          {currentProgress.status === 'completed' && currentProgress.video_url && (
+          {progress.status === 'completed' && progress.video_url && (
             <div style={{ 
-              marginTop: '20px', 
-              padding: '20px', 
+              marginTop: '25px', 
+              padding: '25px', 
               backgroundColor: '#d4edda', 
-              borderRadius: '8px', 
-              border: '2px solid #28a745' 
+              borderRadius: '10px', 
+              border: '3px solid #28a745',
+              boxShadow: '0 4px 8px rgba(40,167,69,0.2)'
             }}>
-              <h3 style={{ margin: '0 0 15px 0', color: '#155724', fontSize: '20px' }}>
-                ✅ Video Ready!
-              </h3>
-              <p style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold' }}>
-                Video URL:
-              </p>
-              <div style={{ 
-                padding: '12px', 
-                backgroundColor: 'white', 
-                borderRadius: '4px',
-                border: '1px solid #c3e6cb',
-                wordBreak: 'break-all'
+              <h3 style={{ 
+                margin: '0 0 20px 0', 
+                color: '#155724', 
+                fontSize: '22px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
               }}>
+                ✅ Video Generation Complete!
+              </h3>
+              
+              <div style={{
+                padding: '15px',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                border: '1px solid #c3e6cb',
+                marginBottom: '15px'
+              }}>
+                <p style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold', color: '#155724' }}>
+                  📎 Video URL:
+                </p>
                 <a 
-                  href={currentProgress.video_url} 
+                  href={progress.video_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   style={{ 
-                    color: '#667eea', 
+                    color: '#667eea',
                     textDecoration: 'underline',
-                    fontSize: '14px'
+                    fontSize: '15px',
+                    wordBreak: 'break-all',
+                    display: 'block'
                   }}
                 >
-                  {currentProgress.video_url}
+                  {progress.video_url}
                 </a>
               </div>
-              <p style={{ margin: '15px 0 0 0', fontSize: '13px', color: '#666', fontStyle: 'italic' }}>
-                📝 Note: This is a mock URL for demonstration. In production mode with API keys, this will be a real downloadable video file.
+              
+              <div style={{
+                padding: '12px',
+                backgroundColor: '#fff3cd',
+                borderRadius: '6px',
+                border: '1px solid #ffc107'
+              }}>
+                <p style={{ margin: 0, fontSize: '13px', color: '#856404' }}>
+                  📝 <strong>Note:</strong> This is a mock URL for demonstration purposes. 
+                  In production mode with API keys configured, this will be a real, downloadable video file.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {progress.status === 'failed' && (
+            <div style={{ 
+              marginTop: '20px', 
+              padding: '20px', 
+              backgroundColor: '#f8d7da', 
+              borderRadius: '8px', 
+              border: '2px solid #dc3545' 
+            }}>
+              <p style={{ margin: 0, color: '#721c24', fontWeight: 'bold' }}>
+                ❌ Video generation failed
               </p>
+              {progress.error && (
+                <p style={{ margin: '10px 0 0 0', fontSize: '14px', color: '#721c24' }}>
+                  Error: {progress.error}
+                </p>
+              )}
             </div>
           )}
         </div>

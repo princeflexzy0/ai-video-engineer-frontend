@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 
 const SocketContext = createContext();
 
@@ -7,19 +7,14 @@ export const useSocket = () => {
 };
 
 export const SocketProvider = ({ children }) => {
-  const [socket, setSocket] = useState(null);
-  const [videoStatus, setVideoStatus] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-
-  useEffect(() => {
-    // Note: WebSocket connection disabled
-    // App uses HTTP polling for real-time updates
-    console.log('📡 Using HTTP polling for status updates (WebSocket not required)');
-    setIsConnected(false);
-  }, []);
+  const value = {
+    socket: null,
+    videoStatus: null,
+    isConnected: false
+  };
 
   return (
-    <SocketContext.Provider value={{ socket, videoStatus, isConnected }}>
+    <SocketContext.Provider value={value}>
       {children}
     </SocketContext.Provider>
   );
