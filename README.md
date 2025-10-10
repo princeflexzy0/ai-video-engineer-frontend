@@ -1,19 +1,36 @@
-# 🎬 AI Video Engineer - Frontend
+# AI Video Engineer - Frontend
 
-React-based web interface for AI-powered video generation system.
+Modern React application for AI-powered video generation.
 
-## 🚀 Quick Start
+## 🚀 Live Demo
 
-### Prerequisites
-- Node.js 16+
-- npm or yarn
+https://princeflexzy0.github.io/ai-video-engineer-frontend
 
-### Installation
-```bash
-npm install
-npm start
-### 3️⃣ Create .env.example
-```bash
-cat > .env.example << 'EOF'
-# Backend API URL
-REACT_APP_BACKEND_URL=http://localhost:10000
+## 🎯 Current Status: Mock Mode
+
+- Login works (any email/password)
+- Dashboard loads
+- Video generation simulates progress
+- Returns mock video URL
+
+## 🔄 Usage
+
+1. Visit the app
+2. Login with any credentials
+3. Enter video script
+4. Select presenter template
+5. Generate video
+6. Watch progress bar
+
+## 🛠️ Tech Stack
+
+- React 18
+- React Router DOM
+- Context API
+- HTTP Polling
+
+## 📡 Backend
+
+https://ai-video-engineer-backend.onrender.com
+
+Status: MOCK MODE
