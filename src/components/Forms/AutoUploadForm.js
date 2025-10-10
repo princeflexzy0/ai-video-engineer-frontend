@@ -12,13 +12,14 @@ function AutoUploadForm() {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://ai-video-engineer-backend.onrender.com';
 
   useEffect(() => {
-    if (!videoId || isConnected) return;
+    if (!videoId) return;
 
     const pollStatus = setInterval(async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/video-status/${videoId}`);
         if (response.ok) {
           const data = await response.json();
+          console.log('Polling update:', data);
           setProgress(data);
           if (data.status === 'completed' || data.status === 'failed') {
             clearInterval(pollStatus);
@@ -30,7 +31,7 @@ function AutoUploadForm() {
     }, 3000);
 
     return () => clearInterval(pollStatus);
-  }, [videoId, isConnected, BACKEND_URL]);
+  }, [videoId, BACKEND_URL]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -114,11 +115,6 @@ function AutoUploadForm() {
       {status && (
         <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
           <p style={{ margin: 0 }}>{status}</p>
-          {!isConnected && videoId && (
-            <p style={{ margin: '5px 0 0 0', fontSize: '12px', color: '#666' }}>
-              Using polling mode (checking every 3 seconds)
-            </p>
-          )}
         </div>
       )}
 
@@ -140,29 +136,46 @@ function AutoUploadForm() {
                   transition: 'width 0.3s ease'
                 }}></div>
               </div>
-              <p style={{ textAlign: 'center', marginTop: '5px' }}>{currentProgress.progress}%</p>
+              <p style={{ textAlign: 'center', marginTop: '5px', fontWeight: 'bold' }}>{currentProgress.progress}%</p>
             </div>
           )}
+          
           {currentProgress.status === 'completed' && currentProgress.video_url && (
-            <div style={{ marginTop: '15px', padding: '15px', backgroundColor: '#d4edda', borderRadius: '4px', border: '1px solid #c3e6cb' }}>
-              <p style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#155724' }}>✅ Video Ready!</p>
-              <p style={{ margin: '0 0 10px 0', fontSize: '14px' }}>
-                <strong>Video URL:</strong>
+            <div style={{ 
+              marginTop: '20px', 
+              padding: '20px', 
+              backgroundColor: '#d4edda', 
+              borderRadius: '8px', 
+              border: '2px solid #28a745' 
+            }}>
+              <h3 style={{ margin: '0 0 15px 0', color: '#155724', fontSize: '20px' }}>
+                ✅ Video Ready!
+              </h3>
+              <p style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: 'bold' }}>
+                Video URL:
               </p>
-              <a 
-                href={currentProgress.video_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{ 
-                  color: '#667eea', 
-                  wordBreak: 'break-all',
-                  textDecoration: 'underline'
-                }}
-              >
-                {currentProgress.video_url}
-              </a>
-              <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#666' }}>
-                (Mock URL - In production mode, this will be a real downloadable video)
+              <div style={{ 
+                padding: '12px', 
+                backgroundColor: 'white', 
+                borderRadius: '4px',
+                border: '1px solid #c3e6cb',
+                wordBreak: 'break-all'
+              }}>
+                <a 
+                  href={currentProgress.video_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ 
+                    color: '#667eea', 
+                    textDecoration: 'underline',
+                    fontSize: '14px'
+                  }}
+                >
+                  {currentProgress.video_url}
+                </a>
+              </div>
+              <p style={{ margin: '15px 0 0 0', fontSize: '13px', color: '#666', fontStyle: 'italic' }}>
+                📝 Note: This is a mock URL for demonstration. In production mode with API keys, this will be a real downloadable video file.
               </p>
             </div>
           )}
