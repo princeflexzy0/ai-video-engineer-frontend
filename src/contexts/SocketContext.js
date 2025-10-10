@@ -13,14 +13,14 @@ export const SocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://ai-video-backend.onrender.com';
+    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://ai-video-engineer-backend.onrender.com';
     
     const newSocket = io(BACKEND_URL, {
       transports: ['polling', 'websocket'],
       reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
-      timeout: 10000
+      reconnectionDelay: 2000,
+      reconnectionAttempts: 3,
+      timeout: 5000
     });
 
     newSocket.on('connect', () => {
@@ -46,7 +46,7 @@ export const SocketProvider = ({ children }) => {
     setSocket(newSocket);
 
     return () => {
-      newSocket.close();
+      if (newSocket) newSocket.close();
     };
   }, []);
 
